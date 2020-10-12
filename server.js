@@ -195,23 +195,24 @@ function mainMenu() {
       });
   }
 // Update employee role
-  function updateEmpRole() {
+function updateEmpRole() {
     let employeeArray = [];
     let roleArray = [];
-    connection.query("SELECT id,title FROM roles ORDER BY title ASC", function (
+    connection.query("SELECT id as ID,title FROM roles ORDER BY title ASC", function (
       err,
       res
     ) {
       if (err) throw err;
       for (i = 0; i < res.length; i++) {
-        roleArray.push(res[i].title);
+        roleArray.push(res[i].ID+", "+res[i].title);
       }
       connection.query(
-        "SELECT employee.id, concat(employee.first_name, employee.last_name) AS Employee FROM employee ORDER BY employee ASC",
+        "SELECT employee.id as ID, concat(employee.first_name, employee.last_name) AS Employee FROM employee ORDER BY employee ASC",
         function (err, res) {
           if (err) throw err;
           for (i = 0; i < res.length; i++) {
-            employeeArray.push(res[i].Employee);
+
+            employeeArray.push(res[i].ID+", "+res[i].Employee);
           }
           inquirer
             .prompt([
@@ -229,9 +230,11 @@ function mainMenu() {
               },
             ])
             .then((answer) => {
+              // console.log(answer);
               connection.query(
-                `UPDATE employee SET roles_id = ${answer.role} WHERE id = ${answer.employee}`
+                `UPDATE employee SET roles_id = ${answer.role.split(", ")[0]} WHERE id = "${answer.employee}"`
               );
+              mainMenu();
             })
             .catch((err) => console.log(err));
         }
